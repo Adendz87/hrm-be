@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  hrm-dev-1:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: hrm
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    volumes:
+      - ./uploads:/app/uploads
+    depends_on:
+      - mysql
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: hrm-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+  mysql:
+    image: mysql:8.0
+    container_name: hrm-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: hrm
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  redis_data:

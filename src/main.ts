@@ -7,7 +7,7 @@ import { seedAdmin } from './database/seed-admin';
 import { TimeoutInterceptor } from './commons/interceptors/timeout.interceptor';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -42,6 +42,7 @@ async function bootstrap() {
   app.useStaticAssets(join(process.cwd(), 'storage'), {
     prefix: '/storage/',
   });
+  app.use(cookieParser());
 
   app.useGlobalPipes(
     new ValidationPipe({

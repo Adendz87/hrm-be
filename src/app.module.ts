@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { UploadModule } from './upload/upload.module';
 import { DepartmentModule } from './department/department.module';
 import { PositionModule } from './position/position.module';
+import { RedisModule } from './redis/redis.module';
+import { RoleModule } from './role/role.module';
 
 
 @Module({
@@ -17,6 +19,8 @@ import { PositionModule } from './position/position.module';
     UploadModule,
     DepartmentModule,
     PositionModule,
+    RedisModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

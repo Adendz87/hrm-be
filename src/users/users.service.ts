@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from 'src/auth/dto/register.dto';
-import * as bcrypt from 'bcrypt';
+import { RedisService } from 'src/redis/redis.service';
 
 
 @Injectable()
@@ -11,6 +11,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private redisService: RedisService,
   ) { }
 
   async getUsersByEmail(email: string) {
@@ -19,8 +20,17 @@ export class UsersService {
     return user;
   }
 
-  async findEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+  async findEmail(email: string) {
+
+    return this.userRepository.findOne({
+      where: {
+        email
+      },
+      relations: {
+        department: true
+      }
+    });
+
   }
 
   async profile(req: User) {
@@ -35,22 +45,200 @@ export class UsersService {
   async createUser(user: CreateUserDto) {
     return this.userRepository.save(user);
   }
-  async allUser() {
-    return this.userRepository.find();
+  async allUser(
+    page = 1,
+    limit = 20,
+  ) {
+
+    const cacheKey =
+      `users:list:page:${page}:limit:${limit}`;
+
+
+    const cachedUsers =
+      await this.redisService.get<User[]>(cacheKey);
+
+
+    if (cachedUsers) {
+      console.log(
+        "LIST USER CACHE HIT"
+      );
+
+      return cachedUsers;
+    }
+
+
+    console.log(
+      "LIST USER CACHE MISS"
+    );
+
+
+    const [users, total] =
+      await this.userRepository.findAndCount({
+        skip: (page - 1) * limit,
+        take: limit,
+
+        relations: {
+          department: true,
+        },
+
+        order: {
+          created_at: "DESC",
+        },
+      });
+
+
+    const result = {
+      data: users.map(user => {
+
+        const {
+          password,
+          ...userWithoutPassword
+        } = user;
+
+        return userWithoutPassword;
+      }),
+
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(
+          total / limit
+        ),
+      },
+    };
+
+
+    await this.redisService.set(
+      cacheKey,
+      result,
+      30, // list cache ngắn
+    );
+
+
+    return result;
   }
 
+
   async getById(id: string) {
+
+    const cacheKey = `user:${id}`;
+
+    const cachedUser =
+      await this.redisService.get<User>(cacheKey);
+
+
+    if (cachedUser) {
+      return {
+        userWithoutPassword: cachedUser,
+      };
+    }
+
+
     const user = await this.userRepository.findOne({
       where: { id },
       relations: {
         department: true,
       },
     });
+
+
     if (!user) {
-      throw new NotFoundException('Người dùng không tồn tại');
+      throw new NotFoundException(
+        'Người dùng không tồn tại'
+      );
     }
+
+
     const { password, ...userWithoutPassword } = user;
-    return { userWithoutPassword };
+
+
+    await this.redisService.set(
+      cacheKey,
+      userWithoutPassword,
+      3600,
+    );
+
+
+    return {
+      userWithoutPassword,
+    };
   }
+
+  async updateUser(
+    id: string,
+    payload: Partial<User>,
+  ) {
+
+    const user =
+      await this.userRepository.findOne({
+        where: {
+          id,
+        },
+      });
+
+
+    if (!user) {
+      throw new NotFoundException(
+        "Người dùng không tồn tại"
+      );
+    }
+
+
+
+    await this.userRepository.update(
+      id,
+      payload,
+    );
+
+
+
+    const updatedUser =
+      await this.userRepository.findOne({
+        where: {
+          id,
+        },
+
+        relations: {
+          department: true,
+        },
+      });
+
+
+
+    if (!updatedUser) {
+      throw new NotFoundException(
+        "Người dùng không tồn tại"
+      );
+    }
+
+
+
+    const {
+      password,
+      ...userWithoutPassword
+    } = updatedUser;
+
+
+
+    await this.redisService.set(
+      `user:${id}`,
+      userWithoutPassword,
+      3600,
+    );
+
+
+
+    await this.redisService.clearByPattern(
+      "users:list:*"
+    );
+
+
+
+    return {
+      userWithoutPassword,
+    };
+  }
+
 
 }
