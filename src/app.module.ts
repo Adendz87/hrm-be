@@ -4,11 +4,14 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { MySqlModule } from './database/mysql.module';
 import { UsersModule } from './users/users.module';
-import { UploadModule } from './upload/upload.module';
 import { DepartmentModule } from './department/department.module';
 import { PositionModule } from './position/position.module';
 import { RedisModule } from './redis/redis.module';
 import { RoleModule } from './role/role.module';
+import { UploadModule } from './upload/upload.module';
+import { ContractModule } from './contract/contract.module';
+import { KafkaModule } from './kafka/kafka.module';
+import { MinioModule } from './minio/minio.module';
 
 
 @Module({
@@ -21,6 +24,9 @@ import { RoleModule } from './role/role.module';
     PositionModule,
     RedisModule,
     RoleModule,
+    ContractModule,
+    KafkaModule,
+    MinioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

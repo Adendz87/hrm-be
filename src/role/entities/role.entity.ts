@@ -52,18 +52,6 @@ export class Role {
     @OneToMany(() => User, (user) => user.role)
     users!: User[];
 
-    @ManyToOne(() => Role, (role) => role.users, {
-        nullable: false,
-        onDelete: 'RESTRICT',
-    })
-    @JoinColumn({ name: 'role_id' })
-    role!: Role;
-
-    @Column({
-        type: 'uuid',
-    })
-    role_id!: string;
-
     @CreateDateColumn()
     created_at!: Date;
 

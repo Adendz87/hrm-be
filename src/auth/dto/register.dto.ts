@@ -9,7 +9,7 @@ import {
   Length,
   MaxLength,
 } from 'class-validator';
-import { Gender, UserRole, UserStatus } from 'src/users/entity/user.entity';
+import { Gender, Position, UserStatus } from 'src/users/entity/user.entity';
 
 
 export class CreateUserDto {
@@ -71,6 +71,9 @@ export class CreateUserDto {
   department_id?: string;
 
   @IsOptional()
-  @IsEnum(UserRole)
-  role?: UserRole;
+  @IsEnum(Position)
+  position?: Position;
+
+  @IsUUID()
+  role_id: string;
 }

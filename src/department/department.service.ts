@@ -1,17 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UseGuards } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
 import { UpdateDepartmentDto } from './dto/update-department.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Department } from './entities/department.entity';
 import { Repository } from 'typeorm';
 import { RedisService } from 'src/redis/redis.service';
-import { UserRole } from 'src/users/entity/user.entity';
+import { Position } from 'src/users/entity/user.entity';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 export const CACHE_KEYS = {
   DEPARTMENTS: 'departments:list',
   DEPARTMENT: (id: string) => `department:${id}`,
 };
-
+@UseGuards(AuthGuard)
 @Injectable()
 export class DepartmentService {
   constructor(
@@ -58,9 +59,9 @@ export class DepartmentService {
       .leftJoin(
         'department.employees',
         'leader',
-        'leader.role = :role',
+        'leader.position = :position',
         {
-          role: UserRole.LEADER,
+          position: Position.LEADER,
         },
       )
       .select([

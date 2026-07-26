@@ -23,7 +23,8 @@ interface UserCache {
   address: string | null;
   hire_date: Date | null;
   status: string;
-  role: string;
+  position: string;
+  role: any;
 
   department?: {
     id: string;
@@ -121,7 +122,8 @@ export class AuthGuard implements CanActivate {
         address: dbUser.address,
         hire_date: dbUser.hire_date,
         status: dbUser.status,
-        role: dbUser.role,
+        position: dbUser.position,
+        role: dbUser.role
       };
 
 

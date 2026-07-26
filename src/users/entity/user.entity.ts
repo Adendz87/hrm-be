@@ -1,5 +1,7 @@
 import { Exclude } from 'class-transformer';
+import { Contract } from 'src/contract/entities/contract.entity';
 import { Department } from 'src/department/entities/department.entity';
+import { Role } from 'src/role/entities/role.entity';
 import {
   Entity,
   Column,
@@ -10,6 +12,7 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 
 export enum Gender {
@@ -24,7 +27,7 @@ export enum UserStatus {
   RESIGNED = 'resigned',
 }
 
-export enum UserRole {
+export enum Position {
   EMPLOYEE = 'EMPLOYEE',
   LEADER = 'LEADER',
   MANAGER = 'MANAGER',
@@ -163,17 +166,23 @@ export class User {
 
   @Column({
     type: 'enum',
-    enum: UserRole,
-    default: UserRole.EMPLOYEE
+    enum: Position,
+    default: Position.EMPLOYEE
   })
-  role!: UserRole;
+  position!: Position;
 
-  // @Column({
-  //   type: 'enum',
-  //   enum: UserPosition,
-  //   default: UserPosition.EMPLOYEE
-  // })
-  // position!: UserPosition;
+  @ManyToOne(() => Role, (role) => role.users, {
+    nullable: true
+  })
+  @JoinColumn({ name: 'role_id' })
+  role!: Role;
 
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  role_id!: string;
 
+  @OneToMany(() => Contract, contract => contract.employee)
+  contracts!: Contract[];
 }

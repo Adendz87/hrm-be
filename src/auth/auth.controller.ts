@@ -154,6 +154,8 @@ export class AuthController {
                         address: user.address,
                         hire_date: user.hire_date,
                         status: user.status,
+                        role: user.role,
+                        position: user.position
                     }
                     : null,
             },

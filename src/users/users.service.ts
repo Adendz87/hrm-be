@@ -4,6 +4,8 @@ import { EntityManager, Repository } from 'typeorm';
 import { User } from './entity/user.entity';
 import { CreateUserDto } from 'src/auth/dto/register.dto';
 import { RedisService } from 'src/redis/redis.service';
+import { Role } from 'src/role/entities/role.entity';
+import { RoleService } from 'src/role/role.service';
 
 
 @Injectable()
@@ -12,6 +14,8 @@ export class UsersService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private redisService: RedisService,
+    private roleService: RoleService,
+
   ) { }
 
   async getUsersByEmail(email: string) {
@@ -42,8 +46,18 @@ export class UsersService {
     return { userWithoutPassword };
   }
 
-  async createUser(user: CreateUserDto) {
-    return this.userRepository.save(user);
+  async createUser(user: CreateUserDto): Promise<User> {
+    const role = await this.roleService.findOne(user.role_id);
+    if (!role) {
+      throw new NotFoundException('Role không tồn tại');
+    }
+
+    const entity = this.userRepository.create({
+      ...user,
+      role,
+    });
+
+    return await this.userRepository.save(entity);
   }
   async allUser(
     page = 1,
