@@ -1,7 +1,7 @@
 version: "3.9"
 
 services:
-  hrm-dev-1:
+  backend:
     build:
       context: .
       dockerfile: dockerfile
@@ -21,6 +21,8 @@ services:
     depends_on:
       - mysql
       - redis
+    networks:
+      - hrm-network
 
   redis:
     image: redis:7-alpine
@@ -31,6 +33,8 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    networks:
+      - hrm-network
 
   kafka-1:
     image: apache/kafka:latest
@@ -62,6 +66,8 @@ services:
 
     volumes:
       - kafka1_data:/var/lib/kafka/data
+    networks:
+      - hrm-network
 
 
   kafka-2:
@@ -94,6 +100,8 @@ services:
 
     volumes:
       - kafka2_data:/var/lib/kafka/data
+    networks:
+      - hrm-network
 
 
   kafka-3:
@@ -126,6 +134,8 @@ services:
 
     volumes:
       - kafka3_data:/var/lib/kafka/data
+    networks:
+      - hrm-network
 
   minio:
     image: minio/minio:latest
@@ -140,6 +150,8 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    networks:
+      - hrm-network
 
   mysql:
     image: mysql:8.0
@@ -152,6 +164,8 @@ services:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - hrm-network
 
 volumes:
   mysql_data:
@@ -160,3 +174,7 @@ volumes:
   kafka1_data:
   kafka2_data:
   kafka3_data:
+
+networks:
+  hrm-network:
+    external: true
