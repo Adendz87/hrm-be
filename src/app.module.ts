@@ -12,6 +12,7 @@ import { UploadModule } from './upload/upload.module';
 import { ContractModule } from './contract/contract.module';
 import { KafkaModule } from './kafka/kafka.module';
 import { MinioModule } from './minio/minio.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 
 @Module({
@@ -27,6 +28,7 @@ import { MinioModule } from './minio/minio.module';
     ContractModule,
     KafkaModule,
     MinioModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

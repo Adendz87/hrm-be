@@ -1,4 +1,5 @@
 import { Exclude } from 'class-transformer';
+import { Attendance } from 'src/attendance/entities/attendance.entity';
 import { Contract } from 'src/contract/entities/contract.entity';
 import { Department } from 'src/department/entities/department.entity';
 import { Role } from 'src/role/entities/role.entity';
@@ -183,6 +184,14 @@ export class User {
   })
   role_id!: string;
 
+
+
   @OneToMany(() => Contract, contract => contract.employee)
   contracts!: Contract[];
+
+  @OneToMany(
+    () => Attendance,
+    (attendance) => attendance.user,
+  )
+  attendances!: Attendance[];
 }

@@ -27,6 +27,7 @@ export class KafkaProducerService
     topic: string,
     payload: any,
   ) {
+     console.log('SEND', topic, payload);
     await this.producer.send({
       topic,
       messages: [
