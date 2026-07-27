@@ -9,8 +9,6 @@ import { WeeklySummaryDto } from './dto/WeeklySummaryDto';
 import { AttendanceStatisticsDto } from './dto/AttendanceStatisticsDto';
 import { CreateAttendanceSettingDto } from './dto/CreateAttendanceSettingDto';
 
-
-
 @UseGuards(AuthGuard)
 @Controller('attendance')
 export class AttendanceController {

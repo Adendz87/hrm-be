@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Contract } from 'src/contract/entities/contract.entity';
 import { KafkaConsumerService } from './contract-upload.consumer';
 import { AttendanceLog } from 'src/attendance/entities/attendanceLog.entity';
+import { AttendanceCheckInConsumer } from './attendance-checkin.consumer';
+import { AttendanceCheckOutConsumer } from './attendance-checkout.consumer';
 
 
 @Module({
@@ -15,6 +17,8 @@ import { AttendanceLog } from 'src/attendance/entities/attendanceLog.entity';
   providers: [
     KafkaProducerService,
     KafkaConsumerService,
+    AttendanceCheckInConsumer,
+    AttendanceCheckOutConsumer,
   ],
   exports: [
     KafkaProducerService,
